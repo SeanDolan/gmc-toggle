@@ -27,18 +27,25 @@ Configuration mode:
 
 1. On boot, the ESP32 reads the config button pin.
 2. If the config button is down, the ESP32 enters config mode immediately. No hold timer is required.
-3. Normal reed reporting is ignored while in config mode.
-4. The ESP32 does not go to sleep while in config mode.
-5. The onboard LED blinks 3 times, waits 2 seconds, then repeats.
-6. The ESP32 starts a password-free WiFi access point named `GMC Toggle`.
-7. A captive portal opens a device configuration page.
-8. The configuration page is a clean mobile-friendly interface for iPhone-sized screens and stores:
+3. A newly flashed device also enters config mode automatically if required WiFi/target settings are missing.
+4. Normal reed reporting is ignored while in config mode.
+5. The ESP32 does not go to sleep while in config mode.
+6. The onboard LED blinks 3 times, waits 2 seconds, then repeats.
+7. The ESP32 starts a password-free WiFi access point named `GMC Toggle`.
+8. A captive portal opens a device configuration page.
+9. The configuration page is a clean mobile-friendly interface for iPhone-sized screens and stores:
    - `deviceName`: max 20 characters, letters, numbers, and underscores only.
    - `wifiSSID`: normal WiFi SSID used outside config mode.
    - `wifiPass`: normal WiFi password.
    - `targetURL`: local web server endpoint, for example `http://192.168.0.78/trigger.php`.
    - `normallyClosed`: whether the installed reed switch is NC instead of NO. Newly flashed devices default to NO.
-9. On save, settings are written to flash and the ESP32 reboots with those settings in place.
+10. On save, settings are written to flash and the ESP32 reboots with those settings in place.
+
+Failure behavior:
+
+- If WiFi or HTTP reporting fails, the device stores the latest unsent magnet value.
+- It then sleeps using the final physical reed state for GPIO wake, and also arms a timer retry.
+- On the next wake, it tries to send the pending value before bringing the server up to date with the current confirmed value.
 
 ## HTTP Folder
 
