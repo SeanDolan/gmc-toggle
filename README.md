@@ -17,10 +17,11 @@ Normal runtime:
 5. Before posting, re-check the reed state. If it changed while connecting, report the newer state.
 6. POST JSON to `targetURL`.
 7. After reporting, re-check the reed state again.
-8. If the state changed after reporting, report the updated state before sleeping.
-9. Immediately before sleep, read the current physical reed state one final time.
-10. Configure wake for the inverse of that final physical state.
-11. Sleep.
+8. If the state changed after reporting, report the updated state.
+9. Repeat the report-and-recheck cycle until the latest reported state matches the current confirmed reed state.
+10. Immediately before sleep, read the current physical reed state one final time.
+11. Configure wake for the inverse of that final physical state.
+12. Sleep.
 
 Configuration mode:
 
