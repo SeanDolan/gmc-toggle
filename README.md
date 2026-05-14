@@ -91,6 +91,8 @@ The firmware should still debounce in software after waking. Hardware filtering 
 
 For each sleep cycle, the firmware should configure wake for the inverse of the final physical GPIO level. The `normallyClosed` correction only affects the reported `data.value`, not the wake edge selection.
 
+The firmware expects active-low inputs, meaning the reed switch and config button connect their GPIO to GND when active. The external pullups, debounce capacitors, and 100 nF supply capacitor improve wake reliability and noise resistance. If the input components are omitted and only the ESP32 internal pullups are used, the firmware logic stays the same, but deep-sleep wake reliability depends more heavily on the board and wiring.
+
 ## Hardware Pinout
 
 This project uses the following fixed pin assignments for the ESP32-mini-C3 build:
