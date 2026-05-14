@@ -46,8 +46,8 @@ Firmware will POST JSON like this:
 ```json
 {
   "deviceName": "pirates_chest1",
+  "deviceType": "toggle",
   "data": {
-    "deviceType": "toggle",
     "value": 0
   }
 }

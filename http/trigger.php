@@ -20,8 +20,8 @@ if (!is_array($payload)) {
 }
 
 $deviceName = isset($payload['deviceName']) ? (string) $payload['deviceName'] : '';
+$deviceType = isset($payload['deviceType']) ? (string) $payload['deviceType'] : '';
 $data = isset($payload['data']) && is_array($payload['data']) ? $payload['data'] : null;
-$deviceType = is_array($data) && isset($data['deviceType']) ? (string) $data['deviceType'] : '';
 $value = is_array($data) && isset($data['value']) ? $data['value'] : null;
 
 if (!preg_match('/^[A-Za-z0-9_]{1,20}$/', $deviceName)) {
@@ -53,8 +53,8 @@ if (!is_dir($dataDir) && !mkdir($dataDir, 0775, true)) {
 
 $record = [
     'deviceName' => $deviceName,
+    'deviceType' => $deviceType,
     'data' => [
-        'deviceType' => $deviceType,
         'value' => $value,
     ],
     'receivedAt' => gmdate('c'),
@@ -71,4 +71,4 @@ if ($encoded === false || file_put_contents($file, $encoded . PHP_EOL, LOCK_EX) 
     exit;
 }
 
-echo json_encode(['ok' => true, 'deviceName' => $deviceName, 'data' => ['deviceType' => $deviceType, 'value' => $value]]);
+echo json_encode(['ok' => true, 'deviceName' => $deviceName, 'deviceType' => $deviceType, 'data' => ['value' => $value]]);
