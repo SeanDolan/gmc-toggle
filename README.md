@@ -11,12 +11,16 @@ The ESP32-mini-C3 monitors a reed switch and reports state changes to a configur
 Normal runtime:
 
 1. Sleep until the reed switch changes state.
-2. Wake up and record the current reed state.
-3. Connect to the configured WiFi network.
-4. POST JSON to `targetURL`.
-5. Re-check the reed switch before sleeping.
-6. If the reed state changed during reporting, send the updated state as another JSON event.
-7. Sleep again and wake only when the inverse of the current reed state occurs.
+2. Wake up and record the current physical reed state.
+3. Debounce and normalize the state to magnet presence.
+4. Connect to the configured WiFi network.
+5. Before posting, re-check the reed state. If it changed while connecting, report the newer state.
+6. POST JSON to `targetURL`.
+7. After reporting, re-check the reed state again.
+8. If the state changed after reporting, report the updated state before sleeping.
+9. Immediately before sleep, read the current physical reed state one final time.
+10. Configure wake for the inverse of that final physical state.
+11. Sleep.
 
 Configuration mode:
 
@@ -89,7 +93,7 @@ Best compact setup:
 
 The firmware should still debounce in software after waking. Hardware filtering is there to reduce false wakes and noisy edges, not to replace firmware confirmation.
 
-For each sleep cycle, the firmware should configure wake for the inverse of the final physical GPIO level. The `normallyClosed` correction only affects the reported `data.value`, not the wake edge selection.
+For each sleep cycle, the firmware must configure wake for the inverse of the final physical GPIO level read immediately before entering sleep. The `normallyClosed` correction only affects the reported `data.value`, not the wake edge selection.
 
 The firmware expects active-low inputs, meaning the reed switch and config button connect their GPIO to GND when active. The external pullups, debounce capacitors, and 100 nF supply capacitor improve wake reliability and noise resistance. If the input components are omitted and only the ESP32 internal pullups are used, the firmware logic stays the same, but deep-sleep wake reliability depends more heavily on the board and wiring.
 
