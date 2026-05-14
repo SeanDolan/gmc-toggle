@@ -91,12 +91,12 @@ The firmware should still debounce in software after waking. Hardware filtering 
 
 For each sleep cycle, the firmware should configure wake for the inverse of the final physical GPIO level. The `normallyClosed` correction only affects the reported `data.value`, not the wake edge selection.
 
-## Hardware Decisions Still Needed
+## Hardware Pinout
 
-Before final firmware pin behavior is locked in, choose:
+This project uses the following fixed pin assignments for the ESP32-mini-C3 build:
 
-- Confirm that GPIO3 and GPIO4 match your ESP32-mini-C3 board's physical pinout. They are chosen because common ESP32-C3 Super Mini layouts place GPIO0-GPIO4 on the same side as GND, while GPIO5 is on the opposite side.
-- Whether each input is wired to ground using internal pullups, or wired another way.
-- Whether your installed reed switch is NO or NC. Newly flashed devices default to NO.
+- GPIO3: reed switch input.
+- GPIO4: config button input.
+- Both inputs are wired to GND when active and pulled up to 3.3 V.
 
-Current placeholder defaults live in [include/project_config.h](include/project_config.h).
+These pins are chosen because common ESP32-C3 mini layouts place GPIO0-GPIO4 on the same side as GND, while GPIO5 is on the opposite side. Project defaults live in [include/project_config.h](include/project_config.h).
