@@ -40,7 +40,7 @@ Configuration mode:
    - `deviceName`: max 20 characters, letters, numbers, and underscores only.
    - `wifiSSID`: normal WiFi SSID used outside config mode.
    - `wifiPass`: normal WiFi password.
-   - `targetURL`: local web server endpoint, for example `http://192.168.0.78/trigger.php`.
+   - `targetURL`: local web server endpoint, for example `http://192.168.0.100/trigger.php`.
    - `normallyClosed`: whether the installed reed switch is NC instead of NO. Newly flashed devices default to NO.
 10. On save, settings are written to flash and the ESP32 reboots with those settings in place.
 

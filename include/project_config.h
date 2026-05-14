@@ -10,8 +10,8 @@ constexpr bool kStatusLedActiveLow = true;
 
 constexpr char kDeviceType[] = "toggle";
 constexpr char kConfigApSsid[] = "GMC Toggle";
-constexpr char kDefaultDeviceName[] = "gmc_toggle";
-constexpr char kDefaultTargetUrl[] = "http://192.168.0.78/trigger.php";
+constexpr char kDefaultDeviceName[] = "toggle_";
+constexpr char kDefaultTargetUrl[] = "http://192.168.0.100/trigger.php";
 
 constexpr unsigned long kConfigLedOnMs = 150;
 constexpr unsigned long kConfigLedBetweenBlinkMs = 150;
