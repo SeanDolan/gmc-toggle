@@ -32,7 +32,7 @@ function latest_state(string $dataDir): string
     }
 
     $payload = json_decode((string) file_get_contents($latestFile), true);
-    return is_array($payload) && isset($payload['reedState']) ? (string) $payload['reedState'] : 'UNKNOWN';
+    return is_array($payload) && isset($payload['data']['value']) ? (string) $payload['data']['value'] : 'UNKNOWN';
 }
 
 if ($device !== '') {
@@ -49,7 +49,7 @@ if ($device !== '') {
     }
 
     $payload = json_decode((string) file_get_contents($file), true);
-    $state = is_array($payload) && isset($payload['reedState']) ? (string) $payload['reedState'] : 'UNKNOWN';
+    $state = is_array($payload) && isset($payload['data']['value']) ? (string) $payload['data']['value'] : 'UNKNOWN';
 
     if ($stateOnly) {
         plain_response($state);

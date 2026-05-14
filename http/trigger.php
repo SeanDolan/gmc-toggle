@@ -20,7 +20,9 @@ if (!is_array($payload)) {
 }
 
 $deviceName = isset($payload['deviceName']) ? (string) $payload['deviceName'] : '';
-$reedState = isset($payload['reedState']) ? strtoupper((string) $payload['reedState']) : '';
+$data = isset($payload['data']) && is_array($payload['data']) ? $payload['data'] : null;
+$deviceType = is_array($data) && isset($data['deviceType']) ? (string) $data['deviceType'] : '';
+$value = is_array($data) && isset($data['value']) ? $data['value'] : null;
 
 if (!preg_match('/^[A-Za-z0-9_]{1,20}$/', $deviceName)) {
     http_response_code(400);
@@ -28,11 +30,19 @@ if (!preg_match('/^[A-Za-z0-9_]{1,20}$/', $deviceName)) {
     exit;
 }
 
-if ($reedState !== 'ON' && $reedState !== 'OFF') {
+if ($deviceType !== 'toggle') {
     http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => 'Invalid reedState']);
+    echo json_encode(['ok' => false, 'error' => 'Invalid deviceType']);
     exit;
 }
+
+if ($value !== 0 && $value !== 1 && $value !== '0' && $value !== '1') {
+    http_response_code(400);
+    echo json_encode(['ok' => false, 'error' => 'Invalid value']);
+    exit;
+}
+
+$value = (int) $value;
 
 $dataDir = __DIR__ . '/data';
 if (!is_dir($dataDir) && !mkdir($dataDir, 0775, true)) {
@@ -43,8 +53,10 @@ if (!is_dir($dataDir) && !mkdir($dataDir, 0775, true)) {
 
 $record = [
     'deviceName' => $deviceName,
-    'reedState' => $reedState,
-    'reedClosed' => isset($payload['reedClosed']) ? (bool) $payload['reedClosed'] : null,
+    'data' => [
+        'deviceType' => $deviceType,
+        'value' => $value,
+    ],
     'receivedAt' => gmdate('c'),
     'sourceIp' => $_SERVER['REMOTE_ADDR'] ?? null,
     'payload' => $payload,
@@ -59,4 +71,4 @@ if ($encoded === false || file_put_contents($file, $encoded . PHP_EOL, LOCK_EX) 
     exit;
 }
 
-echo json_encode(['ok' => true, 'deviceName' => $deviceName, 'reedState' => $reedState]);
+echo json_encode(['ok' => true, 'deviceName' => $deviceName, 'data' => ['deviceType' => $deviceType, 'value' => $value]]);

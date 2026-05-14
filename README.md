@@ -45,14 +45,15 @@ Firmware will POST JSON like this:
 
 ```json
 {
-  "deviceName": "garage_door",
-  "reedState": "ON",
-  "reedClosed": true,
-  "millis": 12345
+  "deviceName": "pirates_chest1",
+  "data": {
+    "deviceType": "toggle",
+    "value": 0
+  }
 }
 ```
 
-`reedState` is the normalized human-readable state shown by the PHP page. `reedClosed` is the physical switch reading after input debouncing, before NO/NC meaning is applied.
+`value` is the normalized toggle state after input debouncing and NO/NC correction. The server should not need to know whether the physical reed switch is NO or NC.
 
 ## Reed Switch Normalization
 
@@ -60,7 +61,7 @@ The wake source is based only on the physical GPIO level at the moment the ESP32
 
 - NO switch: closed means magnet present.
 - NC switch: open means magnet present.
-- `onMeansMagnetPresent` decides whether magnet present is reported as `ON` or `OFF`.
+- `onMeansMagnetPresent` decides whether magnet present is reported as `1` or `0`.
 
 This lets each device correct for NO or NC installations locally while the server receives a consistent final state.
 
@@ -68,16 +69,19 @@ This lets each device correct for NO or NC installations locally while the serve
 
 For reliable reed readings, wire the reed switch between the reed GPIO and GND, with the GPIO pulled up.
 
-Recommended starting values:
+Best compact setup:
 
-- External pullup from reed GPIO to 3.3 V: 100 kOhm for reliability, or 330 kOhm to 1 MOhm if battery current is more important.
-- Debounce/noise capacitor from reed GPIO to GND: 10 nF to 100 nF, placed close to the ESP32 board.
-- Optional series resistor between reed wire and GPIO: 100 Ohm to 1 kOhm, especially if the reed wire leaves the enclosure or runs near noisy wiring.
-- Local supply decoupling near the ESP32: 100 nF ceramic plus 220 uF to 470 uF bulk capacitance.
+- Reed switch: one wire to GPIO3, other wire to GND.
+- Reed pullup resistor, 100 kOhm: one side to GPIO3, other side to 3.3 V.
+- Reed debounce/noise capacitor, 10 nF ceramic: one side to GPIO3, other side to GND, close to the ESP32 board.
+- Config button: one wire to GPIO4, other wire to GND.
+- Config button pullup resistor, 100 kOhm: one side to GPIO4, other side to 3.3 V.
+- Config button debounce/noise capacitor, 10 nF ceramic: one side to GPIO4, other side to GND, close to the ESP32 board.
+- Supply decoupling capacitor, 100 nF ceramic: one side to 3.3 V, other side to GND, close to the ESP32 board.
 
 The firmware should still debounce in software after waking. Hardware filtering is there to reduce false wakes and noisy edges, not to replace firmware confirmation.
 
-For each sleep cycle, the firmware should configure wake for the inverse of the final physical GPIO level. NO/NC correction only affects the reported `reedState`, not the wake edge selection.
+For each sleep cycle, the firmware should configure wake for the inverse of the final physical GPIO level. NO/NC correction only affects the reported `data.value`, not the wake edge selection.
 
 ## Hardware Decisions Still Needed
 
@@ -85,6 +89,6 @@ Before final firmware pin behavior is locked in, choose:
 
 - Confirm that GPIO3 and GPIO4 match your ESP32-mini-C3 board's physical pinout. They are chosen because common ESP32-C3 Super Mini layouts place GPIO0-GPIO4 on the same side as GND, while GPIO5 is on the opposite side.
 - Whether each input is wired to ground using internal pullups, or wired another way.
-- Whether `ON` should mean magnet present or magnet absent for your installation.
+- Whether `1` should mean magnet present or magnet absent for your installation.
 
 Current placeholder defaults live in [include/project_config.h](include/project_config.h).
