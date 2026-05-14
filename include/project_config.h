@@ -8,6 +8,9 @@ constexpr int kConfigButtonPin = 4;
 constexpr bool kUseInputPullups = true;
 constexpr bool kNormallyClosed = false;
 
-constexpr char kConfigApSsid[] = "GMC-Toggle-Setup";
+constexpr char kConfigApSsid[] = "GMC Toggle";
+constexpr unsigned long kConfigLedOnMs = 150;
+constexpr unsigned long kConfigLedBetweenBlinkMs = 150;
+constexpr unsigned long kConfigLedRepeatGapMs = 2000;
 constexpr unsigned long kWifiConnectTimeoutMs = 15000;
 constexpr unsigned long kHttpTimeoutMs = 8000;

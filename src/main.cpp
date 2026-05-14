@@ -18,6 +18,8 @@ void setup() {
   Serial.println(kConfigButtonPin);
   Serial.print("Reed contact type: ");
   Serial.println(kNormallyClosed ? "NC" : "NO");
+  Serial.print("Config AP SSID: ");
+  Serial.println(kConfigApSsid);
 }
 
 void loop() {
