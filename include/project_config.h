@@ -6,8 +6,7 @@ constexpr int kReedSwitchPin = 3;
 constexpr int kConfigButtonPin = 4;
 
 constexpr bool kUseInputPullups = true;
-constexpr bool kReedSwitchNormallyClosed = false;
-constexpr bool kOnMeansMagnetPresent = true;
+constexpr bool kNormallyClosed = false;
 
 constexpr char kConfigApSsid[] = "GMC-Toggle-Setup";
 constexpr unsigned long kWifiConnectTimeoutMs = 15000;

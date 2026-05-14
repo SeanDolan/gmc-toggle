@@ -17,7 +17,7 @@ void setup() {
   Serial.print("Config button GPIO: ");
   Serial.println(kConfigButtonPin);
   Serial.print("Reed contact type: ");
-  Serial.println(kReedSwitchNormallyClosed ? "NC" : "NO");
+  Serial.println(kNormallyClosed ? "NC" : "NO");
 }
 
 void loop() {

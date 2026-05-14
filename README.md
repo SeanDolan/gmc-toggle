@@ -29,8 +29,7 @@ Configuration mode:
    - `wifiSSID`: normal WiFi SSID used outside config mode.
    - `wifiPass`: normal WiFi password.
    - `targetURL`: local web server endpoint, for example `http://192.168.0.78/trigger.php`.
-   - `reedSwitchNormallyClosed`: whether the installed reed switch is NC instead of NO.
-   - `onMeansMagnetPresent`: whether the normalized `ON` state means the magnet is present.
+   - `normallyClosed`: whether the installed reed switch is NC instead of NO. Newly flashed devices default to NO.
 
 ## HTTP Folder
 
@@ -53,17 +52,22 @@ Firmware will POST JSON like this:
 }
 ```
 
-`value` is the normalized toggle state after input debouncing and NO/NC correction. The server should not need to know whether the physical reed switch is NO or NC.
+`value` is the normalized magnet presence after input debouncing and NO/NC correction. The server should not need to know whether the physical reed switch is NO or NC.
+
+- `1`: magnet is near the reed switch.
+- `0`: magnet is away from the reed switch.
+
+The server decides what those values mean for each device. For example, a chest may treat `0` as open because the lid moved the magnet away from the reed switch.
 
 ## Reed Switch Normalization
 
 The wake source is based only on the physical GPIO level at the moment the ESP32 goes to sleep. After waking, the firmware will normalize the physical reed reading using the configured switch type before sending status to the server.
 
-- NO switch: closed means magnet present.
-- NC switch: open means magnet present.
-- `onMeansMagnetPresent` decides whether magnet present is reported as `1` or `0`.
+- NO switch: closed means magnet near.
+- NC switch: open means magnet near.
+- `normallyClosed` is the device-side correction setting. It defaults to `false`.
 
-This lets each device correct for NO or NC installations locally while the server receives a consistent final state.
+This lets each device correct for NO or NC installations locally while the server always receives a consistent magnet presence value.
 
 ## Recommended Input Hardware
 
@@ -81,7 +85,7 @@ Best compact setup:
 
 The firmware should still debounce in software after waking. Hardware filtering is there to reduce false wakes and noisy edges, not to replace firmware confirmation.
 
-For each sleep cycle, the firmware should configure wake for the inverse of the final physical GPIO level. NO/NC correction only affects the reported `data.value`, not the wake edge selection.
+For each sleep cycle, the firmware should configure wake for the inverse of the final physical GPIO level. The `normallyClosed` correction only affects the reported `data.value`, not the wake edge selection.
 
 ## Hardware Decisions Still Needed
 
@@ -89,6 +93,6 @@ Before final firmware pin behavior is locked in, choose:
 
 - Confirm that GPIO3 and GPIO4 match your ESP32-mini-C3 board's physical pinout. They are chosen because common ESP32-C3 Super Mini layouts place GPIO0-GPIO4 on the same side as GND, while GPIO5 is on the opposite side.
 - Whether each input is wired to ground using internal pullups, or wired another way.
-- Whether `1` should mean magnet present or magnet absent for your installation.
+- Whether your installed reed switch is NO or NC. Newly flashed devices default to NO.
 
 Current placeholder defaults live in [include/project_config.h](include/project_config.h).
