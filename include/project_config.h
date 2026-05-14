@@ -5,7 +5,6 @@
 constexpr int kReedSwitchPin = 3;
 constexpr int kConfigButtonPin = 4;
 
-constexpr bool kUseInputPullups = true;
 constexpr bool kNormallyClosed = false;
 
 constexpr char kConfigApSsid[] = "GMC Toggle";

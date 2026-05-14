@@ -6,9 +6,8 @@ void setup() {
   Serial.begin(115200);
   delay(300);
 
-  const uint8_t inputMode = kUseInputPullups ? INPUT_PULLUP : INPUT;
-  pinMode(kReedSwitchPin, inputMode);
-  pinMode(kConfigButtonPin, inputMode);
+  pinMode(kReedSwitchPin, INPUT_PULLUP);
+  pinMode(kConfigButtonPin, INPUT_PULLUP);
 
   Serial.println();
   Serial.println("GMC Toggle clean-slate firmware scaffold");
