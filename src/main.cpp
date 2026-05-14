@@ -164,30 +164,8 @@ String buildPayload(int value) {
          kDeviceType + F("\",\"data\":{\"value\":") + value + F("}}");
 }
 
-void savePendingValue(int value) {
-  preferences.begin("gmc-toggle", false);
-  preferences.putBool("pending", true);
-  preferences.putInt("pendingValue", value);
-  preferences.end();
-}
-
-bool loadPendingValue(int& value) {
-  preferences.begin("gmc-toggle", true);
-  const bool hasPending = preferences.getBool("pending", false);
-  value = preferences.getInt("pendingValue", 0);
-  preferences.end();
-  return hasPending;
-}
-
-void clearPendingValue() {
-  preferences.begin("gmc-toggle", false);
-  preferences.putBool("pending", false);
-  preferences.end();
-}
-
 void clearReportState() {
   preferences.begin("gmc-toggle", false);
-  preferences.putBool("pending", false);
   preferences.putBool("hasLastReported", false);
   preferences.end();
 }
@@ -379,8 +357,6 @@ void startConfigMode(const char* reason) {
 }
 
 void runNormalMode() {
-  int pendingValue = 0;
-  const bool hadPending = loadPendingValue(pendingValue);
   int currentValue = readStableMagnetValue();
 
   Serial.print("Initial magnet value: ");
@@ -388,28 +364,21 @@ void runNormalMode() {
 
   int lastReportedValue = 0;
   const bool hasLastReported = loadLastReportedValue(lastReportedValue);
-  if (!hadPending && hasLastReported && currentValue == lastReportedValue) {
+  if (hasLastReported && currentValue == lastReportedValue) {
     Serial.println("Current value already confirmed by server; sleeping");
     armWakeAndSleep(false);
   }
 
   if (!connectWifi()) {
-    Serial.println("WiFi failed; saving pending state");
-    currentValue = readStableMagnetValue();
-    savePendingValue(currentValue);
+    Serial.println("WiFi failed; arming timer retry");
     armWakeAndSleep(true);
   }
 
   currentValue = readStableMagnetValue();
 
-  if (hadPending && pendingValue != currentValue) {
-    Serial.print("Reporting pending value: ");
-    Serial.println(pendingValue);
-    if (!postValue(pendingValue)) {
-      savePendingValue(currentValue);
-      armWakeAndSleep(true);
-    }
-    saveLastReportedValue(pendingValue);
+  if (hasLastReported && currentValue == lastReportedValue) {
+    Serial.println("State returned to last confirmed value after WiFi; sleeping");
+    armWakeAndSleep(false);
   }
 
   while (true) {
@@ -418,13 +387,11 @@ void runNormalMode() {
     Serial.println(currentValue);
 
     if (!postValue(currentValue)) {
-      Serial.println("HTTP failed; saving pending state");
-      savePendingValue(readStableMagnetValue());
+      Serial.println("HTTP failed; arming timer retry");
       armWakeAndSleep(true);
     }
 
     saveLastReportedValue(currentValue);
-    clearPendingValue();
 
     delay(kReportRecheckDelayMs);
     const int afterReportValue = readStableMagnetValue();

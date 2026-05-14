@@ -13,17 +13,18 @@ Normal runtime:
 1. Sleep until the reed switch changes state.
 2. Wake up and record the current physical reed state.
 3. Debounce and normalize the state to magnet presence.
-4. If there is no pending unsent value and the current value matches the last value successfully confirmed by the server, skip WiFi and go back to sleep.
+4. If the current value matches the last value successfully confirmed by the server, skip WiFi and go back to sleep.
 5. Connect to the configured WiFi network.
-6. Before posting, re-check the reed state. If it changed while connecting, report the newer state.
-7. POST JSON to `targetURL`.
-8. Record the value as successfully reported only after the server returns a successful HTTP response.
-9. After reporting, re-check the reed state again.
-10. If the state changed after reporting, report the updated state.
-11. Repeat the report-and-recheck cycle until the latest reported state matches the current confirmed reed state.
-12. Immediately before sleep, read the current physical reed state one final time.
-13. Configure wake for the inverse of that final physical state.
-14. Sleep.
+6. Before posting, re-check the reed state.
+7. If the value now matches the last value successfully confirmed by the server, skip reporting and go back to sleep.
+8. POST JSON to `targetURL` only when the current value is different from the last server-confirmed value.
+9. Record the value as successfully reported only after the server returns a successful HTTP response.
+10. After reporting, re-check the reed state again.
+11. If the state changed after reporting, report the updated state.
+12. Repeat the report-and-recheck cycle until the latest reported state matches the current confirmed reed state.
+13. Immediately before sleep, read the current physical reed state one final time.
+14. Configure wake for the inverse of that final physical state.
+15. Sleep.
 
 Configuration mode:
 
@@ -45,9 +46,8 @@ Configuration mode:
 
 Failure behavior:
 
-- If WiFi or HTTP reporting fails, the device stores the latest unsent magnet value.
-- It then sleeps using the final physical reed state for GPIO wake, and also arms a timer retry.
-- On the next wake, it tries to send the pending value before bringing the server up to date with the current confirmed value.
+- If WiFi or HTTP reporting fails, the device sleeps using the final physical reed state for GPIO wake, and also arms a timer retry.
+- On the next wake, it reports only if the current confirmed value differs from the last server-confirmed value.
 
 ## HTTP Folder
 
