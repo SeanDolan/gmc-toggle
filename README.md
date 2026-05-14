@@ -116,3 +116,9 @@ This project uses the following fixed pin assignments for the ESP32-mini-C3 buil
 - Both inputs are wired to GND when active and pulled up to 3.3 V.
 
 These pins are chosen because common ESP32-C3 mini layouts place GPIO0-GPIO4 on the same side as GND, while GPIO5 is on the opposite side. Project defaults live in [include/project_config.h](include/project_config.h).
+
+## License
+
+Copyright (c) 2026 Sean Dolan. All rights reserved.
+
+This project is provided for the repository owner's personal use as part of the GMC ecosystem. No permission is granted for other people, businesses, organizations, or entities to use, copy, modify, distribute, sell, host, deploy, or incorporate this project or any part of it without written permission from the copyright owner.
