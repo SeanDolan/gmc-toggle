@@ -185,6 +185,28 @@ void clearPendingValue() {
   preferences.end();
 }
 
+void clearReportState() {
+  preferences.begin("gmc-toggle", false);
+  preferences.putBool("pending", false);
+  preferences.putBool("hasLastReported", false);
+  preferences.end();
+}
+
+void saveLastReportedValue(int value) {
+  preferences.begin("gmc-toggle", false);
+  preferences.putBool("hasLastReported", true);
+  preferences.putInt("lastReportedValue", value);
+  preferences.end();
+}
+
+bool loadLastReportedValue(int& value) {
+  preferences.begin("gmc-toggle", true);
+  const bool hasLastReported = preferences.getBool("hasLastReported", false);
+  value = preferences.getInt("lastReportedValue", 0);
+  preferences.end();
+  return hasLastReported;
+}
+
 bool connectWifi() {
   WiFi.mode(WIFI_STA);
   WiFi.setSleep(false);
@@ -305,6 +327,7 @@ void handleSave() {
   }
 
   saveConfig(next);
+  clearReportState();
   webServer.send(200, "text/html",
                  F("<!doctype html><html><head><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:grid;place-items:center;min-height:100vh;margin:0}main{text-align:center;padding:24px}h1{font-size:28px}</style></head><body><main><h1>Saved</h1></main></body></html>"));
   delay(700);
@@ -363,6 +386,13 @@ void runNormalMode() {
   Serial.print("Initial magnet value: ");
   Serial.println(currentValue);
 
+  int lastReportedValue = 0;
+  const bool hasLastReported = loadLastReportedValue(lastReportedValue);
+  if (!hadPending && hasLastReported && currentValue == lastReportedValue) {
+    Serial.println("Current value already confirmed by server; sleeping");
+    armWakeAndSleep(false);
+  }
+
   if (!connectWifi()) {
     Serial.println("WiFi failed; saving pending state");
     currentValue = readStableMagnetValue();
@@ -379,6 +409,7 @@ void runNormalMode() {
       savePendingValue(currentValue);
       armWakeAndSleep(true);
     }
+    saveLastReportedValue(pendingValue);
   }
 
   while (true) {
@@ -392,6 +423,7 @@ void runNormalMode() {
       armWakeAndSleep(true);
     }
 
+    saveLastReportedValue(currentValue);
     clearPendingValue();
 
     delay(kReportRecheckDelayMs);
