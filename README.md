@@ -46,7 +46,11 @@ Configuration mode:
 
 Failure behavior:
 
-- If WiFi or HTTP reporting fails, the device sleeps using the final physical reed state for GPIO wake, and also arms a timer retry.
+- WiFi connect is attempted for up to 15 seconds.
+- If WiFi does not connect, the device does not keep waiting. It sleeps using the final physical reed state for GPIO wake, and also arms a 5 minute timer retry.
+- HTTP reporting is attempted up to 3 times.
+- Each HTTP attempt has a 3 second timeout, so an offline XAMPP/local server does not keep the ESP32 awake for long.
+- If HTTP still fails, the device sleeps using the final physical reed state for GPIO wake, and also arms a 5 minute timer retry.
 - On the next wake, it reports only if the current confirmed value differs from the last server-confirmed value.
 
 ## HTTP Folder
